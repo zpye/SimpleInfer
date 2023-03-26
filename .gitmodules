@@ -1,0 +1,18 @@
+[submodule "3rdparty/abseil-cpp"]
+	path = 3rdparty/abseil-cpp
+	url = git@github.com:abseil/abseil-cpp.git
+[submodule "3rdparty/CGraph"]
+	path = 3rdparty/CGraph
+	url = git@github.com:ChunelFeng/CGraph.git
+[submodule "3rdparty/eigen"]
+	path = 3rdparty/eigen
+	url = https://gitlab.com/libeigen/eigen.git
+[submodule "3rdparty/benchmark"]
+	path = 3rdparty/benchmark
+	url = git@github.com:google/benchmark.git
+[submodule "3rdparty/tmp"]
+	path = 3rdparty/tmp
+	url = git@github.com:zjhellofss/tmp.git
+[submodule "3rdparty/Catch2"]
+	path = 3rdparty/Catch2
+	url = git@github.com:catchorg/Catch2.git
