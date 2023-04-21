@@ -7,7 +7,7 @@ SimpleInfer is a neural network inference framework based on [KuiperInfer](https
 SimpleInfer uses [xmake](https://xmake.io/#/) to build library and tests.
 
 ```shell
-git clone --recursive 
+git clone --recursive https://github.com/zpye/SimpleInfer.git
 cd SimpleInfer
 xmake config -m release
 xmake
@@ -33,3 +33,5 @@ xmake run test-engine
 [CGraph](https://github.com/ChunelFeng/CGraph) -> graph based pipeline
 
 [benchmark](https://github.com/google/benchmark), [Catch2](https://github.com/catchorg/Catch2) -> benchmark and unit tests
+
+[tmp](https://github.com/zjhellofss/tmp.git) -> models
