@@ -1,5 +1,6 @@
 #include "types.h"
 
+#include <cstddef>
 #include <cstdint>
 
 namespace SimpleInfer {

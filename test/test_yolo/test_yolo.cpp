@@ -1,3 +1,4 @@
+#include <cfloat>
 #include <string>
 
 #include "engine.h"

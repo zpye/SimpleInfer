@@ -25,7 +25,7 @@ int main() {
     engine.Forward();
 
     SimpleInfer::Tensor output;
-    engine.Extract("140", output);
+    engine.Extract("4", output);
 
     return 0;
 }

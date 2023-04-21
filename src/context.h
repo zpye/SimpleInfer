@@ -20,6 +20,8 @@ public:
 
     Eigen::ThreadPoolDevice* GetEigenThreadPoolDevice();
 
+    static Eigen::ThreadPoolDevice* GetDefaultEigenThreadPoolDevice();
+
 protected:
     std::unique_ptr<Eigen::ThreadPool> eigen_threadpool_;
     std::unique_ptr<Eigen::ThreadPoolDevice> eigen_threadpool_device_;

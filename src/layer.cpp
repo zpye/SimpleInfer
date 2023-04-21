@@ -122,7 +122,7 @@ Eigen::ThreadPoolDevice* Layer::GetEigenThreadPoolDevice() {
         return context_->GetEigenThreadPoolDevice();
     }
 
-    return nullptr;
+    return Context::GetDefaultEigenThreadPoolDevice();
 }
 
 }  // namespace SimpleInfer

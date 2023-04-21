@@ -14,8 +14,8 @@
 
 // #include "mat.h"
 
-// #include <limits.h>
-// #include <math.h>
+#include <limits.h>
+#include <math.h>
 #if __ARM_NEON
 #include <arm_neon.h>
 #endif // __ARM_NEON
