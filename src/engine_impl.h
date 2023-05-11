@@ -69,6 +69,7 @@ private:
     std::map<std::string, TensorNode*> output_tensor_nodes_;
 
     CGraph::GPipelinePtr pipeline_ = nullptr;
+    CGraph::UThreadPoolConfig pipeline_thread_pool_config_;
     std::map<std::string, PipelineNode*> pipeline_nodes_;
 };
 

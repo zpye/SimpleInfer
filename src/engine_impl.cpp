@@ -402,6 +402,17 @@ Status EngineImpl::CreatePipeline() {
     }
 
     {
+        // pipiline config
+        pipeline_->setGEngineType(CGraph::GEngineType::STATIC);
+
+        // TODO: set by user
+        pipeline_thread_pool_config_.default_thread_size_ = 2;
+        pipeline_thread_pool_config_.max_thread_size_     = 4;
+
+        pipeline_->setUniqueThreadPoolConfig(pipeline_thread_pool_config_);
+    }
+
+    {
         CStatus ret = pipeline_->init();
         if (!ret.isOK()) {
             LOG(ERROR) << "pipeline init fail";
@@ -497,7 +508,7 @@ const std::vector<std::string> EngineImpl::OutputNames() {
 Status EngineImpl::Input(const std::string& name, const Tensor& input) {
     if (input_tensor_nodes_.count(name) <= 0) {
         LOG(ERROR) << "tensor [" << name << "] is not an input tensor";
-        Status::kFail;
+        return Status::kFail;
     }
 
     input_tensor_nodes_[name]->tensor = input;
@@ -521,7 +532,7 @@ Status EngineImpl::Forward() {
 Status EngineImpl::Extract(const std::string& name, Tensor& output) {
     if (output_tensor_nodes_.count(name) <= 0) {
         LOG(ERROR) << "tensor [" << name << "] is not an output tensor";
-        Status::kFail;
+        return Status::kFail;
     }
 
     output = output_tensor_nodes_[name]->tensor;
