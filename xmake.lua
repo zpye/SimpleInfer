@@ -48,9 +48,16 @@ target("test-pnnx-ir")
 
 target("test-layer")
     set_kind("binary")
-    add_includedirs("src/")
+    add_includedirs("src/", "test/")
     add_files("test/test_main.cpp")
     add_files("test/test_layer/**.cpp")
+    add_deps("simple-infer", "catch2")
+
+target("test-gemm")
+    set_kind("binary")
+    add_includedirs("src/", "test/")
+    add_files("test/test_main.cpp")
+    add_files("test/test_3rdparty/test_gemm.cpp")
     add_deps("simple-infer", "catch2")
 
 target("test-yolo")

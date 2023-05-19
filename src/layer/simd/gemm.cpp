@@ -12,7 +12,7 @@ static_assert(4 == Lanes(d), "Lanes(Full128<float>) should be 4");
 using f32x4_t = VFromD<Full128<float>>;
 
 inline void AddToMemory(float* ptr, f32x4_t value) {
-    Store(Add(Load(d, ptr), value), d, ptr);
+    StoreU(Add(LoadU(d, ptr), value), d, ptr);
 }
 
 inline void AddToMemory(float* ptr, f32x4_t value, size_t tail) {
@@ -20,7 +20,24 @@ inline void AddToMemory(float* ptr, f32x4_t value, size_t tail) {
         AddToMemory(ptr, value);
     } else {
         float temp[4];
-        Store(Add(Load(d, ptr), value), d, temp);
+        StoreU(Add(LoadU(d, ptr), value), d, temp);
+
+        for (size_t i = 0; i < tail; ++i) {
+            ptr[i] = temp[i];
+        }
+    }
+}
+
+inline void SetToMemory(float* ptr, f32x4_t value) {
+    StoreU(value, d, ptr);
+}
+
+inline void SetToMemory(float* ptr, f32x4_t value, size_t tail) {
+    if (4 == tail) {
+        SetToMemory(ptr, value);
+    } else {
+        float temp[4];
+        StoreU(value, d, temp);
 
         for (size_t i = 0; i < tail; ++i) {
             ptr[i] = temp[i];
@@ -64,9 +81,9 @@ void Gemm4x12Pack4F32(size_t K,
     f32x4_t b2;
 
     for (size_t k = 0; k < K; ++k) {
-        b0 = Load(d, B + ob0);
-        b1 = Load(d, B + ob1);
-        b2 = Load(d, B + ob2);
+        b0 = LoadU(d, B + ob0);
+        b1 = LoadU(d, B + ob1);
+        b2 = LoadU(d, B + ob2);
 
         a0  = Set(d, A[oa0]);
         c00 = MulAdd(a0, b0, c00);
@@ -92,27 +109,27 @@ void Gemm4x12Pack4F32(size_t K,
         A += 1;
     }
 
-    AddToMemory(C + 0, c00);
-    AddToMemory(C + 4, c01);
-    AddToMemory(C + 8, c02);
+    SetToMemory(C + 0, c00);
+    SetToMemory(C + 4, c01);
+    SetToMemory(C + 8, c02);
 
     C += ldc;
 
-    AddToMemory(C + 0, c10);
-    AddToMemory(C + 4, c11);
-    AddToMemory(C + 8, c12);
+    SetToMemory(C + 0, c10);
+    SetToMemory(C + 4, c11);
+    SetToMemory(C + 8, c12);
 
     C += ldc;
 
-    AddToMemory(C + 0, c20);
-    AddToMemory(C + 4, c21);
-    AddToMemory(C + 8, c22);
+    SetToMemory(C + 0, c20);
+    SetToMemory(C + 4, c21);
+    SetToMemory(C + 8, c22);
 
     C += ldc;
 
-    AddToMemory(C + 0, c30);
-    AddToMemory(C + 4, c31);
-    AddToMemory(C + 8, c32);
+    SetToMemory(C + 0, c30);
+    SetToMemory(C + 4, c31);
+    SetToMemory(C + 8, c32);
 }
 
 void GemmMx12Pack4F32(size_t M,
@@ -147,16 +164,16 @@ void GemmMx12Pack4F32(size_t M,
     f32x4_t b2;
 
     for (size_t k = 0; k < K; ++k) {
-        b0 = Load(d, B + ob0);
-        b1 = Load(d, B + ob1);
-        b2 = Load(d, B + ob2);
+        b0 = LoadU(d, B + ob0);
+        b1 = LoadU(d, B + ob1);
+        b2 = LoadU(d, B + ob2);
 
         for (size_t i = 0; i < M; ++i) {
             a0 = Set(d, A[oa[i]]);
 
             c[i][0] = MulAdd(a0, b0, c[i][0]);
-            c[i][1] = MulAdd(a0, b0, c[i][1]);
-            c[i][2] = MulAdd(a0, b0, c[i][2]);
+            c[i][1] = MulAdd(a0, b1, c[i][1]);
+            c[i][2] = MulAdd(a0, b2, c[i][2]);
         }
 
         B += 4;
@@ -164,9 +181,9 @@ void GemmMx12Pack4F32(size_t M,
     }
 
     for (size_t i = 0; i < M; ++i) {
-        AddToMemory(C + 0, c[i][0]);
-        AddToMemory(C + 4, c[i][1]);
-        AddToMemory(C + 8, c[i][2]);
+        SetToMemory(C + 0, c[i][0]);
+        SetToMemory(C + 4, c[i][1]);
+        SetToMemory(C + 8, c[i][2]);
 
         C += ldc;
     }
@@ -195,20 +212,21 @@ void Gemm4x4Pack4F32(size_t K,
     f32x4_t b0;
 
     for (size_t k = 0; k < K; ++k) {
-        b0 = Load(d, B);
+        b0 = LoadU(d, B);
 
         c0 = MulAdd(Set(d, A[oa0]), b0, c0);
         c1 = MulAdd(Set(d, A[oa1]), b0, c1);
         c2 = MulAdd(Set(d, A[oa2]), b0, c2);
+        c3 = MulAdd(Set(d, A[oa3]), b0, c3);
 
         B += 4;
         A += 1;
     }
 
-    AddToMemory(C + 0 * ldc, c0, tail);
-    AddToMemory(C + 1 * ldc, c1, tail);
-    AddToMemory(C + 2 * ldc, c2, tail);
-    AddToMemory(C + 3 * ldc, c3, tail);
+    SetToMemory(C + 0 * ldc, c0, tail);
+    SetToMemory(C + 1 * ldc, c1, tail);
+    SetToMemory(C + 2 * ldc, c2, tail);
+    SetToMemory(C + 3 * ldc, c3, tail);
 }
 
 void GemmMx4Pack4F32(size_t M,
@@ -227,8 +245,6 @@ void GemmMx4Pack4F32(size_t M,
 
     for (size_t i = 0; i < M; ++i) {
         c[i] = Zero(d);
-        c[i] = Zero(d);
-        c[i] = Zero(d);
 
         oa[i] = i * lda;
     }
@@ -237,7 +253,7 @@ void GemmMx4Pack4F32(size_t M,
     f32x4_t b0;
 
     for (size_t k = 0; k < K; ++k) {
-        b0 = Load(d, B);
+        b0 = LoadU(d, B);
 
         for (size_t i = 0; i < M; ++i) {
             c[i] = MulAdd(Set(d, A[oa[i]]), b0, c[i]);
@@ -248,9 +264,139 @@ void GemmMx4Pack4F32(size_t M,
     }
 
     for (size_t i = 0; i < M; ++i) {
-        AddToMemory(C + i * ldc, c[i]);
+        SetToMemory(C + i * ldc, c[i], tail);
+    }
+}
+
+void GemmPack4F32(size_t M,
+                  size_t N,
+                  size_t K,
+                  const float* A,
+                  size_t lda,
+                  const float* B,
+                  float* C,
+                  size_t ldc) {
+    size_t ldb = K * 4;
+
+    size_t M4  = M / 4 * 4;
+    size_t N12 = N / 12 * 12;
+    size_t N4  = N / 4 * 4;
+
+    size_t tail_N = N - N4;
+
+    size_t j = 0;
+    for (; j < N12; j += 12) {
+        size_t i = 0;
+        for (; i < M4; i += 4) {
+            Gemm4x12Pack4F32(K, A + i * lda, lda, B, ldb, C + i * ldc + j, ldc);
+        }
+
+        if (i < M) {
+            GemmMx12Pack4F32(M - i,
+                             K,
+                             A + i * lda,
+                             lda,
+                             B,
+                             ldb,
+                             C + i * ldc + j,
+                             ldc);
+        }
+
+        B += K * 12;
+    }
+
+    for (; j < N4; j += 4) {
+        size_t i = 0;
+        for (; i < M4; i += 4) {
+            Gemm4x4Pack4F32(K,
+                            A + i * lda,
+                            lda,
+                            B,
+                            ldb,
+                            C + i * ldc + j,
+                            ldc,
+                            4);
+        }
+
+        if (i < M) {
+            GemmMx4Pack4F32(M - i,
+                            K,
+                            A + i * lda,
+                            lda,
+                            B,
+                            ldb,
+                            C + i * ldc + j,
+                            ldc,
+                            4);
+        }
+
+        B += K * 4;
+    }
+
+    if (j < N) {
+        size_t i = 0;
+        for (; i < M4; i += 4) {
+            Gemm4x4Pack4F32(K,
+                            A + i * lda,
+                            lda,
+                            B,
+                            ldb,
+                            C + i * ldc + j,
+                            ldc,
+                            tail_N);
+        }
+
+        if (i < M) {
+            GemmMx4Pack4F32(M - i,
+                            K,
+                            A + i * lda,
+                            lda,
+                            B,
+                            ldb,
+                            C + i * ldc + j,
+                            ldc,
+                            tail_N);
+        }
     }
 }
 
 }  // namespace HWY_NAMESPACE
 }  // namespace hwy
+
+namespace SimpleInfer {
+
+namespace hn = hwy::HWY_NAMESPACE;
+
+void GemmPack4F32(size_t M,
+                  size_t N,
+                  size_t K,
+                  const float* A,
+                  size_t lda,
+                  const float* B,
+                  float* C,
+                  size_t ldc) {
+    return hn::GemmPack4F32(M, N, K, A, lda, B, C, ldc);
+}
+
+void GemmPack4F32Ref(size_t M,
+                     size_t N,
+                     size_t K,
+                     const float* A,
+                     size_t lda,
+                     const float* B,
+                     float* C,
+                     size_t ldc) {
+    for (size_t m = 0; m < M; ++m) {
+        for (size_t n = 0; n < N; ++n) {
+            size_t n4   = n / 4;
+            size_t nres = n % 4;
+
+            C[m * ldc + n] = 0.0f;
+            for (size_t k = 0; k < K; ++k) {
+                C[m * ldc + n] += A[m * lda + k] * B[n4 * K * 4 + k * 4 + nres];
+            }
+        }
+    }
+}
+
+}  // namespace SimpleInfer
