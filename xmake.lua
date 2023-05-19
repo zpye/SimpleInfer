@@ -7,7 +7,7 @@ target("simple-infer")
     add_includedirs("include/", { public = true })
     add_includedirs("src/")
     add_files("src/**.cpp")
-    add_deps("eigen", "abseil-log", "cgraph")
+    add_deps("eigen", "abseil-log", "cgraph", "highway")
 
 target("tools")
     set_kind("static")
@@ -76,6 +76,13 @@ target("test-classify")
     add_defines("MODEL_PATH=R\"($(curdir)/3rdparty/tmp)\"")
     add_defines("IMAGE_PATH=R\"($(curdir)/imgs)\"")
     add_deps("simple-infer", "tools")
+
+target("test-highway")
+    set_kind("binary")
+    add_includedirs("src/", "test/")
+    add_files("src/logger.cpp")
+    add_files("test/test_highway/test_highway.cpp")
+    add_deps("abseil-log", "highway")
 
 -- benchmark
 target("bench")
