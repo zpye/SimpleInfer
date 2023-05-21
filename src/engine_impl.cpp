@@ -405,9 +405,22 @@ Status EngineImpl::CreatePipeline() {
         // pipiline config
         pipeline_->setGEngineType(CGraph::GEngineType::STATIC);
 
-        // TODO: set by user
+#if 0
+        CSize size;
+        CStatus ret = pipeline_->calcMaxPara(size);
+        if (!ret.isOK()) {
+            LOG(ERROR) << "pipeline calcMaxPara fail";
+            return Status::kFail;
+        }
+
+        LOG(INFO) << "pipeline calcMaxPara size [" << size << "]";
+
+        pipeline_thread_pool_config_.default_thread_size_ = (int)size;
+        pipeline_thread_pool_config_.max_thread_size_     = (int)size;
+#else
         pipeline_thread_pool_config_.default_thread_size_ = 2;
-        pipeline_thread_pool_config_.max_thread_size_     = 4;
+        pipeline_thread_pool_config_.max_thread_size_     = 2;
+#endif
 
         pipeline_->setUniqueThreadPoolConfig(pipeline_thread_pool_config_);
     }
