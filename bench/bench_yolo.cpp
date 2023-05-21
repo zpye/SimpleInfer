@@ -20,6 +20,7 @@ static void BM_Yolov5s_Batch8_640x640(benchmark::State &state) {
 
     Tensor input(SimpleInfer::DataType::kFloat32, {8, 640, 640, 3}, true);
     engine.Input("0", input);
+    engine.Forward();
 
     for (auto _ : state) {
         engine.Forward();

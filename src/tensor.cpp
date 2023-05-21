@@ -30,6 +30,8 @@ Tensor::Tensor(const Tensor& tensor)
       data_(tensor.data_) {}
 
 Tensor& Tensor::operator=(const Tensor& tensor) {
+    Deallocate();
+
     data_type_ = tensor.data_type_;
 
     shape_ = tensor.shape_;

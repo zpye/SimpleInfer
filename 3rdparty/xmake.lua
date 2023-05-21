@@ -45,3 +45,8 @@ target("benchmark")
     if is_plat("windows") then
         add_syslinks("shlwapi")
     end
+
+target("highway")
+    set_kind("static")
+    add_includedirs("highway/", { public = true })
+    add_files("highway/hwy/*.cc|*_test.cc") -- no contrib
