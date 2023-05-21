@@ -36,7 +36,7 @@ static const Full128<float> d;
 static_assert(4 == Lanes(d), "Lanes(Full128<float>) should be 4");
 using f32x4_t = VFromD<Full128<float>>;
 
-// [oc][ic][3(kh)][3(kw)] -> [4(gh)][4(gw)][oc/4][ic][4(oc)]
+// [3(kh)][3(kw)][ic][oc] -> [4(gh)][4(gw)][oc/4][ic][4(oc)]
 void Conv3x3s1Winograd23TransformKernelPack4(const float* src,
                                              size_t ic,
                                              size_t oc,
@@ -44,14 +44,14 @@ void Conv3x3s1Winograd23TransformKernelPack4(const float* src,
     // padding oc with 4
     size_t oc_up4 = (oc + 3) / 4 * 4;
 
-    // 1. [oc][ic][3(kh)][3(kw)] -> [3(kh)][3(kw)][ic][oc4]
+    // 1. [3(kh)][3(kw)][ic][oc] -> [3(kh)][3(kw)][ic][oc4]
     std::vector<float> hwio(9 * ic * oc_up4);
     for (size_t k = 0; k < 9; ++k) {
         for (size_t i = 0; i < ic; ++i) {
             size_t j = 0;
             for (; j < oc; ++j) {
                 hwio[k * ic * oc_up4 + i * oc_up4 + j] =
-                    src[j * ic * 9 + i * 9 + k];
+                    src[k * ic * oc + i * oc + j];
             }
             for (; j < oc_up4; ++j) {
                 hwio[k * ic * oc_up4 + i * oc_up4 + j] = 0.0f;
@@ -133,7 +133,7 @@ void Conv3x3s1Winograd23TransformKernelPack4(const float* src,
     // 3. [4(gh)][4(gw)][ic][oc4] -> [4(gh)][4(gw)][oc/4][ic][4(oc)]
     for (size_t k = 0; k < 16; ++k) {
         for (size_t j = 0; j < oc_up4; j += 4) {
-            const float* in = ghwio.data() + k * stride + j * 4;
+            const float* in = ghwio.data() + k * stride + j;
             for (size_t i = 0; i < ic; ++i) {
                 StoreU(LoadU(d, in + i * oc_up4), d, dst);
                 dst += 4;

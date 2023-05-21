@@ -1,5 +1,10 @@
 #include "conv_2d.h"
 
+#include "simd/binary.h"
+#include "simd/gemm.h"
+#include "simd/parallel.h"
+#include "simd/winograd_helper.h"
+
 namespace SimpleInfer {
 
 DEFINE_LAYER_REGISTRY(Conv2d);
@@ -66,6 +71,8 @@ Status Conv2d::Init(const std::map<std::string, pnnx::Parameter>& params,
 
     CHECK_STATUS(InitWeightAndBias(params, attrs));
 
+    CHECK_STATUS(InitWinograd());
+
     return Status::kSuccess;
 }
 
@@ -99,6 +106,10 @@ Status Conv2d::Validate() {
 }
 
 Status Conv2d::Forward(const Tensor& input, Tensor& output) {
+    if (use_winograd_) {
+        return ForwardWinograd23(input, output);
+    }
+
     if (1 == groups_) {
         return ForwardIm2Col(input, output);
     }
@@ -163,6 +174,31 @@ Status Conv2d::InitWeightAndBias(
 
         // copy only
         bias_transform = bias_original;
+    }
+
+    return Status::kSuccess;
+}
+
+Status Conv2d::InitWinograd() {
+    if (3 == kernel_h_ && 3 == kernel_w_ && 1 == stride_h_ && 1 == stride_w_ &&
+        1 == dilation_h_ && 1 == dilation_w_ && 1 == groups_ &&
+        padding_t_ == padding_b_ && padding_t_ == padding_l_ &&
+        padding_t_ == padding_r_ && (0 == padding_t_ || 1 == padding_t_)) {
+        // convert weights
+        int oc_up4               = (out_channels_ + 3) / 4 * 4;
+        int weight_winograd_size = 16 * in_channels_ * oc_up4;
+
+        weight_winograd_.resize(weight_winograd_size, 0.0f);
+
+        float* src = (float*)weight_.data();
+        float* dst = weight_winograd_.data();
+
+        Conv3x3s1Winograd23TransformKernelPack4(src,
+                                                in_channels_,
+                                                out_channels_,
+                                                dst);
+
+        use_winograd_ = true;
     }
 
     return Status::kSuccess;
@@ -338,6 +374,111 @@ Status Conv2d::ForwardIm2ColWithGroup(const Tensor& input, Tensor& output) {
                                          output_height,
                                          output_width,
                                          1));
+    }
+
+    return Status::kSuccess;
+}
+
+Status Conv2d::ForwardWinograd23(const Tensor& input, Tensor& output) {
+    const std::vector<int>& input_shape  = input.Shape();
+    const std::vector<int>& output_shape = output.Shape();
+
+    const int input_batch   = input_shape[0];
+    const int input_height  = input_shape[1];
+    const int input_width   = input_shape[2];
+    const int input_channel = input_shape[3];
+
+    const int output_batch   = output_shape[0];
+    const int output_height  = output_shape[1];
+    const int output_width   = output_shape[2];
+    const int output_channel = output_shape[3];
+
+    const EigenTensorMap<float, 4> input_eigen_tensor =
+        input.GetEigenTensor<float, 4>();
+
+    EigenTensorMap<float, 4> output_eigen_tensor =
+        output.GetEigenTensor<float, 4>();
+
+    assert(input_batch == output_batch);
+
+    const int tiles_h = (output_height + 1) / 2;
+    const int tiles_w = (output_width + 1) / 2;
+
+    const int output_channel_up4 = (output_channel + 3) / 4 * 4;
+    const int weight_stride      = input_channel * output_channel_up4;
+
+    const int M = tiles_h * tiles_w;
+    const int N = output_channel;
+    const int K = input_channel;
+
+    const int batch       = input_batch;
+    const int input_size  = input_height * input_width * input_channel;
+    const int output_size = output_height * output_width * output_channel;
+    const int output_spatial_size = output_height * output_width;
+
+    const int input_buf_stride  = tiles_h * tiles_w * input_channel;
+    const int output_buf_stride = tiles_h * tiles_w * output_channel;
+    const int output_buf_stride_channel_up4 =
+        tiles_h * tiles_w * output_channel_up4;
+
+    // buffer
+    if (input_buf_winograd_.size() < 16 * input_buf_stride) {
+        input_buf_winograd_.resize(16 * input_buf_stride, 0.0f);
+    }
+
+    if (output_buf_winograd_.size() < 16 * output_buf_stride_channel_up4) {
+        output_buf_winograd_.resize(16 * output_buf_stride_channel_up4, 0.0f);
+    }
+
+    const float* src  = input_eigen_tensor.data();
+    float* src_buf    = input_buf_winograd_.data();
+    float* weight_buf = weight_winograd_.data();
+    float* dst_buf    = output_buf_winograd_.data();
+    float* dst        = output_eigen_tensor.data();
+    float* bias       = (float*)bias_.data();
+
+    bool pad = (1 == padding_t_);
+
+    for (int b = 0; b < batch; ++b) {
+        Conv3x3s1Winograd23TransformInput(src + b * input_size,
+                                          input_height,
+                                          input_width,
+                                          input_channel,
+                                          pad,
+                                          src_buf,
+                                          input_buf_stride);
+
+        SimpleInfer::Parallel(
+            0,
+            16,
+            [&](size_t thread, size_t begin, size_t end) {
+                for (size_t i = begin; i < end; ++i) {
+                    GemmPack4F32(M,
+                                 N,
+                                 K,
+                                 src_buf + i * input_buf_stride,
+                                 input_channel,
+                                 weight_buf + i * weight_stride,
+                                 dst_buf + i * output_buf_stride,
+                                 output_channel);
+                }
+            },
+            16,
+            1);
+
+        Conv3x3s1Winograd23TransformOutput(dst_buf,
+                                           output_buf_stride,
+                                           dst + b * output_size,
+                                           output_height,
+                                           output_width,
+                                           output_channel);
+
+        if (use_bias_) {
+            AddBiasNHWC(bias,
+                        output_spatial_size,
+                        output_channel,
+                        dst + b * output_size);
+        }
     }
 
     return Status::kSuccess;

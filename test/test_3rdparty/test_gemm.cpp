@@ -82,6 +82,8 @@ TEST_CASE("Test Gemm", "[Gemm]") {
     TestFunc(21, 21, 21);
     TestFunc(97, 97, 97);
 
+    TestFunc(1, 8, 1);
+
     TestFunc(32, 128, 64);
     TestFunc(33, 129, 65);
     TestFunc(64, 128, 32);

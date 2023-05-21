@@ -32,6 +32,8 @@ xmake run test-engine
 
 [CGraph](https://github.com/ChunelFeng/CGraph) -> graph based pipeline
 
+[highway](https://github.com/google/highway), [Simd](https://github.com/ermig1979/Simd.git) -> SIMD, GEMM, Winograd, parallel
+
 [benchmark](https://github.com/google/benchmark), [Catch2](https://github.com/catchorg/Catch2) -> benchmark and unit tests
 
 [tmp](https://github.com/zjhellofss/tmp.git) -> models

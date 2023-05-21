@@ -27,9 +27,13 @@ public:
         const std::map<std::string, pnnx::Parameter>& params,
         const std::map<std::string, pnnx::Attribute>& attrs);
 
+    Status InitWinograd();
+
     Status ForwardIm2Col(const Tensor& input, Tensor& output);
 
     Status ForwardIm2ColWithGroup(const Tensor& input, Tensor& output);
+
+    Status ForwardWinograd23(const Tensor& input, Tensor& output);
 
 public:
     enum class PaddingMode { kZeros = 0, kReplicate, kReflect } padding_mode_;
@@ -52,6 +56,15 @@ public:
     std::vector<char> weight_;
     EigenDSize<1> bias_shape_;
     std::vector<char> bias_;
+
+    // winograd
+    bool use_winograd_ = false;
+    int tiles_h_       = 0;
+    int tiles_w_       = 0;
+
+    std::vector<float> weight_winograd_;
+    std::vector<float> input_buf_winograd_;
+    std::vector<float> output_buf_winograd_;
 };
 
 }  // namespace SimpleInfer

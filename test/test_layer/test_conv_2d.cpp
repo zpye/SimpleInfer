@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <cmath>
 
-TEST_CASE("Test Conv2d layer 0") {
+TEST_CASE("Test Conv2d layer 0", "[Conv]") {
     using namespace SimpleInfer;
 
     const int in_image_height = 128;
@@ -131,7 +131,7 @@ TEST_CASE("Test Conv2d layer 0") {
     }
 }
 
-TEST_CASE("Test Conv2d layer 1") {
+TEST_CASE("Test Conv2d layer 1", "[Conv]") {
     using namespace SimpleInfer;
 
     const int in_image_height = 128;
@@ -415,7 +415,7 @@ TEST_CASE("Test Conv2d layer 2") {
     }
 }
 
-TEST_CASE("Test Conv2d layer 3") {
+TEST_CASE("Test Conv2d layer 3", "[Conv]") {
     using namespace SimpleInfer;
 
     const int in_image_height = 10;
