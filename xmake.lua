@@ -1,5 +1,10 @@
 add_rules("mode.debug", "mode.release")
 
+option("build_python")
+    set_default(false)
+    set_showmenu(true)
+option_end()
+
 includes("3rdparty")
 
 target("simple-infer")
@@ -17,22 +22,23 @@ target("tools")
     add_includedirs("tools/", { public = true })
     add_files("tools/**.cpp")
 
+if has_config("build_python") then
+    target("pybind11_export")
+        before_build(function () 
+            os.cp("python/simpleinfer/", "$(buildir)/python/")
+        end)
 
-target("pybind11_export")
-    before_build(function () 
-        os.cp("python/simpleinfer/", "$(buildir)/python/")
-    end)
+        set_kind("shared")
+        set_basename("simpleinfer")
+        set_extension(".pyd")
+        set_targetdir("$(buildir)/python/simpleinfer")
+        add_files("python/pybind11_main.cpp")
+        add_deps("pybind11", "simple-infer")
 
-    set_kind("shared")
-    set_basename("simpleinfer")
-    set_extension(".pyd")
-    set_targetdir("$(buildir)/python/simpleinfer")
-    add_files("python/pybind11_main.cpp")
-    add_deps("pybind11", "simple-infer")
-
-    after_build(function () 
-        os.cp("python/setup.py.in", "$(buildir)/python/setup.py")
-    end)
+        after_build(function () 
+            os.cp("python/setup.py.in", "$(buildir)/python/setup.py")
+        end)
+end
 
 -- tests
 target("test-eigen")

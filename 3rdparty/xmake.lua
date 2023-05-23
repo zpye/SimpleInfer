@@ -51,9 +51,11 @@ target("highway")
     add_includedirs("highway/", { public = true })
     add_files("highway/hwy/*.cc|*_test.cc") -- no contrib
 
-target("pybind11")
-    set_kind("headeronly")
-    add_includedirs("pybind11/include/", "$(env PYTHON_ROOT)/include/", { public = true })
-    add_headerfiles("pybind11/include/**.h")
-    add_linkdirs("$(env PYTHON_ROOT)/libs/", { public = true })
-    add_links("python3")
+if has_config("build_python") then
+    target("pybind11")
+        set_kind("headeronly")
+        add_includedirs("pybind11/include/", "$(env PYTHON_ROOT)/include/", { public = true })
+        add_headerfiles("pybind11/include/**.h")
+        add_linkdirs("$(env PYTHON_ROOT)/libs/", { public = true })
+        add_links("python3")
+end
