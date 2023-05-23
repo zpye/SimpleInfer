@@ -18,6 +18,13 @@ target("tools")
     add_includedirs("tools/", { public = true })
     add_files("tools/**.cpp")
 
+target("pybind11_export")
+    set_kind("shared")
+    set_basename("simpleinfer")
+    set_extension(".pyd")
+    add_files("python/pybind11_main.cpp")
+    add_deps("pybind11", "simple-infer")
+
 -- tests
 target("test-eigen")
     set_kind("binary")
