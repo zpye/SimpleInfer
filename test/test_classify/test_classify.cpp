@@ -31,10 +31,22 @@ int main() {
     Tensor output;
     engine.Extract("122", output);
 
-    EigenTensorMap<float, 4> result = output.GetEigenTensor<float, 4>();
-    EigenDSize<4> result_shape      = result.dimensions();
+    EigenTensorMap<float, 2> result = output.GetEigenTensor<float, 2>();
+    EigenDSize<2> result_shape      = result.dimensions();
 
-    // LOG(INFO) << result.shuffle(EigenDSize<4>(0, 3, 1, 2));
+    for (Eigen::DenseIndex b = 0; b < result_shape[0]; ++b) {
+        float score_max             = -1.0f;
+        Eigen::DenseIndex index_max = -1;
+
+        for (Eigen::DenseIndex i = 0; i < result_shape[1]; ++i) {
+            if (result(b, i) > score_max) {
+                score_max = result(b, i);
+                index_max = i;
+            }
+        }
+
+        LOG(INFO) << absl::StrFormat("%d: (%d, %f)", b, index_max, score_max);
+    }
 
     return 0;
 }

@@ -186,24 +186,24 @@ void ShowGraph(const pnnx::Graph& graph) {
 
     LOG(INFO) << ">>>>>>>>>> operand >>>>>>>>>>>>";
 
-    //     i = 0;
-    //     for (auto operand : graph.operands) {
-    //         LOG(INFO) << ">>>>>>>>>>>>>>>>>>>>>>>>>";
-    //         LOG(INFO) << absl::StrFormat("operand %d", i);
-    //         ShowOperand(operand, "");
+    i = 0;
+    for (auto operand : graph.operands) {
+        LOG(INFO) << ">>>>>>>>>>>>>>>>>>>>>>>>>";
+        LOG(INFO) << absl::StrFormat("operand %d", i);
+        ShowOperand(operand, "");
 
-    //         i += 1;
-    //     }
+        i += 1;
+    }
 }
 
 int main() {
     SimpleInfer::InitializeLogger();
 
     pnnx::Graph graph;
-    int ret = graph.load(model_path + "/resnet/resnet18_batch1.param",
-                         model_path + "/resnet/resnet18_batch1.pnnx.bin");
-    // int ret = graph.load(model_path + "/add/resnet_add3.pnnx.param",
-    //                      model_path + "/add/resnet_add3.pnnx.bin");
+    // int ret = graph.load(model_path + "/resnet/resnet18_batch1.param",
+    //                      model_path + "/resnet/resnet18_batch1.pnnx.bin");
+    int ret = graph.load(model_path + "/add/resnet_add3.pnnx.param",
+                         model_path + "/add/resnet_add3.pnnx.bin");
     // int ret = graph.load(model_path + "/yolo/demo/yolov5s_batch8.pnnx.param",
     //                      model_path + "/yolo/demo/yolov5s_batch8.pnnx.bin");
 

@@ -28,6 +28,7 @@ PYBIND11_MODULE(simpleinfer, m) {
         .value("Unsupport", Status::kUnsupport);
 
     py::class_<Tensor>(m, "Tensor")
+        .def(py::init<>())
         .def(py::init<DataType, std::vector<int>>())
         .def("GetDataType",
              static_cast<const DataType (Tensor::*)() const>(

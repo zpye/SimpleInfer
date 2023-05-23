@@ -8,7 +8,6 @@ target("simple-infer")
     add_includedirs("src/")
     add_files("src/**.cpp")
     add_deps("eigen", "abseil-log", "cgraph", "highway")
-    add_vectorexts("fma")
     add_vectorexts("neon")
     add_vectorexts("sse", "sse2", "sse3", "ssse3")
     add_vectorexts("avx", "avx2")
@@ -18,12 +17,22 @@ target("tools")
     add_includedirs("tools/", { public = true })
     add_files("tools/**.cpp")
 
+
 target("pybind11_export")
+    before_build(function () 
+        os.cp("python/simpleinfer/", "$(buildir)/python/")
+    end)
+
     set_kind("shared")
     set_basename("simpleinfer")
     set_extension(".pyd")
+    set_targetdir("$(buildir)/python/simpleinfer")
     add_files("python/pybind11_main.cpp")
     add_deps("pybind11", "simple-infer")
+
+    after_build(function () 
+        os.cp("python/setup.py.in", "$(buildir)/python/setup.py")
+    end)
 
 -- tests
 target("test-eigen")

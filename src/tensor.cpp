@@ -50,9 +50,6 @@ Status Tensor::Allocate() {
         total_size *= s;
     }
 
-    LOG(INFO) << "Tensor Allocate shape " << shape_[0] << " " << shape_[1]
-              << " " << shape_[2] << " " << shape_[3];
-
     if (total_size > 0) {
         // TODO: use memory pool
         data_ = malloc(total_size);

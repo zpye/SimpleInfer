@@ -188,10 +188,6 @@ Status EngineImpl::CreateTensorNodes() {
             shape_nhwc[shape_dims - 3] = opd->shape[shape_dims - 2];
         }
 
-        LOG(INFO) << "tensor node [" << opd->name << "]" << opd->type << " "
-                  << shape_nhwc[0] << " " << shape_nhwc[1] << " "
-                  << shape_nhwc[2] << " " << shape_nhwc[3];
-
         tensor_node->tensor =
             Tensor(PnnxToDataType(opd->type), shape_nhwc, false);
 
