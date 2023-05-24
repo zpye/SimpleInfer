@@ -2,6 +2,8 @@
 
 #include <cstdlib>
 
+#include "logger.h"
+
 namespace SimpleInfer {
 
 Tensor::Tensor() {}
@@ -57,6 +59,8 @@ Status Tensor::Allocate() {
             return Status::kSuccess;
         }
     }
+
+    LOG(ERROR) << "Tensor Allocate Fail, size " << total_size;
 
     return Status::kFail;
 }

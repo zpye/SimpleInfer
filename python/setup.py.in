@@ -1,0 +1,13 @@
+from setuptools import setup, find_packages
+
+setup(name='SimpleInfer',
+      version='0.1',
+      description='SimpleInfer is a simple neural network inference framework.',
+      author='zpye',
+      author_email='yezupei92@foxmail.com',
+      url='https://github.com/zpye/SimpleInfer',
+      packages=['simpleinfer'],
+      package_dir={'': '.'},
+      package_data={'simpleinfer': ['simpleinfer.pyd']},
+      install_requires=['numpy']
+)

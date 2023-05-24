@@ -1,0 +1,2 @@
+# SimpleInfer
+from .simpleinfer import *

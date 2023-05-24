@@ -38,7 +38,7 @@ int main() {
     std::string output_line;
     for (int c = 0; c < result_shape[2]; ++c) {
         output_line =
-            absl::StrAppendFormat(&output_line, "%.6f,", result(0, 0, c));
+            absl::StrAppendFormat(&output_line, "%.6f, ", result(0, 0, c));
     }
     LOG(INFO) << output_line;
 

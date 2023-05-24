@@ -171,6 +171,7 @@ static std::string expand_expression(Graph& graph, const Operator* op, int& pnnx
             op_unary_out->producer = op_unary;
 
             op_unary_out->shape = op_unary_in->shape;
+            op_unary_out->type = op_unary_in->type;
 
             op_unary->inputs.push_back(op_unary_in);
             op_unary->outputs.push_back(op_unary_out);
@@ -211,6 +212,7 @@ static std::string expand_expression(Graph& graph, const Operator* op, int& pnnx
                 op_binary_out->producer = op_binary;
 
                 op_binary_out->shape = op_binary_inb->shape;
+                op_binary_out->type = op_binary_inb->type;
 
                 op_binary->inputs.push_back(op_binary_inb);
                 op_binary->outputs.push_back(op_binary_out);
@@ -235,6 +237,7 @@ static std::string expand_expression(Graph& graph, const Operator* op, int& pnnx
                 op_binary_out->producer = op_binary;
 
                 op_binary_out->shape = op_binary_ina->shape;
+                op_binary_out->type = op_binary_ina->type;
 
                 op_binary->inputs.push_back(op_binary_ina);
                 op_binary->outputs.push_back(op_binary_out);
@@ -271,6 +274,8 @@ static std::string expand_expression(Graph& graph, const Operator* op, int& pnnx
                     }
                 }
                 op_binary_out->shape = out_shape;
+
+                op_binary_out->type = op_binary_ina->type;
 
                 op_binary->inputs.push_back(op_binary_ina);
                 op_binary->inputs.push_back(op_binary_inb);

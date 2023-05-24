@@ -472,7 +472,8 @@ Status EngineImpl::AllocateTensorMemory() {
 
         Status ret = tensor_node_iter.second->tensor.Allocate();
         if (Status::kSuccess != ret) {
-            LOG(ERROR) << "allocate tensor memory fail";
+            LOG(ERROR) << "allocate tensor [" << tensor_node_iter.first
+                       << "] memory fail";
             return ret;
         }
     }
