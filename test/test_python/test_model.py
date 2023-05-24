@@ -1,12 +1,14 @@
 import simpleinfer as infer
 import numpy as np
+import os
 
 if __name__ == '__main__':
     infer.InitializeContext()
 
     engine = infer.Engine()
 
-    model_path = '../../3rdparty/tmp/yolo/demo/'
+    cur_file_path = os.path.dirname(os.path.realpath(__file__))
+    model_path = cur_file_path + '/../../3rdparty/tmp/yolo/demo/'
     rc = engine.LoadModel(model_path + 'yolov5n_small.pnnx.param',
                           model_path + 'yolov5n_small.pnnx.bin')
     print('LoadModel', rc)

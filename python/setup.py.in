@@ -7,6 +7,7 @@ setup(name='SimpleInfer',
       author_email='yezupei92@foxmail.com',
       url='https://github.com/zpye/SimpleInfer',
       packages=['simpleinfer'],
-      package_dir={"": "."},
-      package_data={"simpleinfer": ["simpleinfer.pyd"]},
+      package_dir={'': '.'},
+      package_data={'simpleinfer': ['simpleinfer.pyd']},
+      install_requires=['numpy']
 )

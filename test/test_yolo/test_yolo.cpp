@@ -107,9 +107,9 @@ static void nms_sorted_bboxes(const std::vector<Object>& faceobjects,
     }
 }
 
-static void draw_objects(const std::string& name,
-                         const cv::Mat& bgr,
-                         const std::vector<Object>& objects) {
+static void draw_objects(const cv::Mat& bgr,
+                         const std::vector<Object>& objects,
+                         cv::Mat& result) {
     static const char* class_names[] = {
         "person",        "bicycle",      "car",
         "motorcycle",    "airplane",     "bus",
@@ -139,21 +139,21 @@ static void draw_objects(const std::string& name,
         "vase",          "scissors",     "teddy bear",
         "hair drier",    "toothbrush"};
 
-    cv::Mat image = bgr.clone();
+    result = bgr.clone();
 
     for (size_t i = 0; i < objects.size(); i++) {
         const Object& obj = objects[i];
 
-        fprintf(stderr,
-                "%d = %.5f at (%.2f, %.2f) size(%.2f x %.2f)\n",
-                obj.label,
-                obj.prob,
-                obj.rect.x,
-                obj.rect.y,
-                obj.rect.width,
-                obj.rect.height);
+        LOG(INFO) << absl::StrFormat(
+            "%d = %.5f at (%.2f, %.2f) size(%.2f x %.2f)",
+            obj.label,
+            obj.prob,
+            obj.rect.x,
+            obj.rect.y,
+            obj.rect.width,
+            obj.rect.height);
 
-        cv::rectangle(image, obj.rect, cv::Scalar(255, 0, 0), 2);
+        cv::rectangle(result, obj.rect, cv::Scalar(255, 0, 0), 2);
 
         char text[256];
         sprintf(text, "%s %.1f%%", class_names[obj.label], obj.prob * 100);
@@ -166,26 +166,23 @@ static void draw_objects(const std::string& name,
         int y = obj.rect.y - label_size.height - baseLine;
         if (y < 0)
             y = 0;
-        if (x + label_size.width > image.cols)
-            x = image.cols - label_size.width;
+        if (x + label_size.width > result.cols)
+            x = result.cols - label_size.width;
 
         cv::rectangle(
-            image,
+            result,
             cv::Rect(cv::Point(x, y),
                      cv::Size(label_size.width, label_size.height + baseLine)),
             cv::Scalar(255, 255, 255),
             -1);
 
-        cv::putText(image,
+        cv::putText(result,
                     text,
                     cv::Point(x, y + label_size.height),
                     cv::FONT_HERSHEY_SIMPLEX,
                     0.5,
                     cv::Scalar(0, 0, 0));
     }
-
-    cv::imshow(name, image);
-    cv::waitKey(0);
 }
 
 template<typename T>
@@ -324,7 +321,7 @@ int main() {
             img_eigen_tensor;
 
         // save padding image
-        cv::imwrite("output_" + image_names[i], ToImage(img_eigen_tensor));
+        // cv::imwrite("output_" + image_names[i], ToImage(img_eigen_tensor));
     }
 
     // inference
@@ -430,9 +427,14 @@ int main() {
             objects_result[i].rect.height = y1 - y0;
         }
 
-        const std::string name =
-            absl::StrFormat("output_%s", image_names[b].c_str());
-        draw_objects(name, images[b], objects_result);
+        cv::Mat result;
+        draw_objects(images[b], objects_result, result);
+
+        const std::string name = absl::StrFormat("%s/yolo_result_%s",
+                                                 image_path.c_str(),
+                                                 image_names[b].c_str());
+        cv::imwrite(name, result);
+        LOG(INFO) << "save image: " << name;
     }
 
     return 0;
