@@ -26,7 +26,7 @@ jobs:
 
     - name: Configure xmake
       # Configure xmake with platform and build type
-      run: xmake config -a x64 -m release --build_python=true
+      run: xmake config -a x64 -m release
 
     - name: Build
       # Build your program with the given configuration
