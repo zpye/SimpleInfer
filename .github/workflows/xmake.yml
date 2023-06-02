@@ -24,6 +24,9 @@ jobs:
       # Update 3rdparty libraries as submodule
       run: git submodule update --init --recursive
 
+    - name: Xmake clean
+      run: xmake clean --all
+
     - name: Configure xmake
       # Configure xmake with platform and build type
       run: xmake config -a x64 -m release

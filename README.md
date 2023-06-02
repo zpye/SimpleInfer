@@ -1,4 +1,4 @@
-# SimpleInfer
+# SimpleInfer ![](https://github.com/zpye/SimpleInfer/workflows/xmake/badge.svg)
 
 SimpleInfer is a neural network inference framework based on [KuiperInfer](https://github.com/zjhellofss/KuiperInfer).
 
