@@ -39,7 +39,7 @@ Here are visualized results of YOLO detection.
 2. Set `--build_python=true` after `xmake config` and build: 
 
 ```shell
-xmake config -a x64 -m release --builf_python=true
+xmake config -a x64 -m release --build_python=true
 xmake -w --all
 ```
 
