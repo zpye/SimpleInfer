@@ -73,4 +73,6 @@ python test/test_python/test_model.py
 
 [pybind11](https://github.com/pybind/pybind11) -> python bindings of c++
 
+[stb](https://github.com/nothings/stb) -> image loader and image writer
+
 [tmp](https://github.com/zjhellofss/tmp) -> pnnx models
