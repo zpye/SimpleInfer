@@ -1,11 +1,27 @@
 add_rules("mode.debug", "mode.release")
 
+set_languages("cxx17")
+
 option("build_python")
     set_default(false)
     set_showmenu(true)
 option_end()
 
+option("halide")
+    set_default(false)
+    set_showmenu(true)
+    add_includedirs("$(env HALIDE_ROOT)/include/", { public = true })
+    add_linkdirs("$(env HALIDE_ROOT)/bin/Release/",
+                 "$(env HALIDE_ROOT)/lib/Release/", { public = true })
+    add_links("Halide")
+    add_rpathdirs("$(env HALIDE_ROOT)/bin/Release/")
+option_end()
+
 includes("3rdparty")
+
+if has_config("halide") then
+    includes("src/layer/halide")
+end
 
 target("simple-infer")
     set_kind("static")
@@ -17,28 +33,32 @@ target("simple-infer")
     add_vectorexts("sse", "sse2", "sse3", "ssse3")
     add_vectorexts("avx", "avx2")
 
+    if has_config("halide") then
+        add_deps("halide_layers")
+    end
+
 target("tools")
     set_kind("static")
     add_includedirs("tools/", { public = true })
     add_files("tools/**.cpp")
 
-if has_config("build_python") then
-    target("pybind11_export")
-        before_build(function () 
-            os.cp("python/simpleinfer/", "$(buildir)/python/")
-        end)
+    if has_config("build_python") then
+        target("pybind11_export")
+            before_build(function () 
+                os.cp("python/simpleinfer/", "$(buildir)/python/")
+            end)
 
-        set_kind("shared")
-        set_basename("simpleinfer")
-        set_extension(".pyd")
-        set_targetdir("$(buildir)/python/simpleinfer")
-        add_files("python/pybind11_main.cpp")
-        add_deps("pybind11", "simple-infer")
+            set_kind("shared")
+            set_basename("simpleinfer")
+            set_extension(".pyd")
+            set_targetdir("$(buildir)/python/simpleinfer")
+            add_files("python/pybind11_main.cpp")
+            add_deps("pybind11", "simple-infer")
 
-        after_build(function () 
-            os.cp("python/setup.py.in", "$(buildir)/python/setup.py")
-        end)
-end
+            after_build(function () 
+                os.cp("python/setup.py.in", "$(buildir)/python/setup.py")
+            end)
+    end
 
 -- tests
 target("test-eigen")

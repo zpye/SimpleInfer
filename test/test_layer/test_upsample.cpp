@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <cmath>
 
-TEST_CASE("Test Upsample layer 0") {
+TEST_CASE("Test Upsample layer 0", "[Upsample]") {
     using namespace SimpleInfer;
 
     // set tensor
@@ -53,7 +53,7 @@ TEST_CASE("Test Upsample layer 0") {
     }
 }
 
-TEST_CASE("Test Upsample layer 1") {
+TEST_CASE("Test Upsample layer 1", "[Upsample]") {
     using namespace SimpleInfer;
 
     // set tensor

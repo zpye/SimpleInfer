@@ -2,6 +2,11 @@
 
 #include <cmath>
 
+#if defined(USE_HALIDE)
+#include "HalideBuffer.h"
+#include "halide_upsample_nearest.h"
+#endif
+
 namespace SimpleInfer {
 
 DEFINE_LAYER_REGISTRY(Upsample);
@@ -119,6 +124,25 @@ Status Upsample::Forward(const Tensor& input, Tensor& output) {
     const float scale_factor_w_inv = 1.0f / scale_factor_w_;
 
     // nearest
+#if defined(USE_HALIDE)
+    Halide::Runtime::Buffer<float> input_buffer(
+        input_eigen_tensor.data(),
+        {input_channel, input_width, input_height, input_batch});
+
+    Halide::Runtime::Buffer<float> output_buffer(
+        output_eigen_tensor.data(),
+        {output_channel, output_width, output_height, output_batch});
+
+    int ret = halide_upsample_nearest(scale_factor_w_inv,
+                                      scale_factor_h_inv,
+                                      input_buffer,
+                                      output_buffer);
+    if (0 != ret) {
+        LOG(ERROR) << "error in halide_upsample_nearest: " << ret;
+        return Status::kFail;
+    }
+
+#else
 #if 0
     for (int h = 0; h < output_height; ++h) {
         int h_in = (float)h * scale_factor_h_inv;
@@ -140,6 +164,7 @@ Status Upsample::Forward(const Tensor& input, Tensor& output) {
     output_eigen_tensor.device(*device) = output_eigen_tensor.generate(
         Nearest4D(input_eigen_tensor, scale_factor_h_inv, scale_factor_w_inv));
 #endif
+#endif  // USE_HALIDE
 
     return Status::kSuccess;
 }
