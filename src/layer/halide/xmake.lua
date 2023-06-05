@@ -1,0 +1,16 @@
+target("halide_upsample_nearest")
+    set_kind("binary")
+    set_targetdir("$(buildir)/")
+    add_files("halide_upsample_nearest.cc", "$(env HALIDE_ROOT)/share/Halide/tools/GenGen.cpp")
+    add_options("halide")
+
+    after_build(function () 
+        os.run("xmake run halide_upsample_nearest -g halide_upsample_nearest -o . -f halide_upsample_nearest target=host")
+    end)
+
+target("halide_layers")
+    set_kind("headeronly")
+    add_defines("USE_HALIDE", { public = true })
+    add_includedirs("$(env HALIDE_ROOT)/include/", "$(buildir)/", { public = true })
+    add_linkdirs("$(buildir)/", { public = true })
+    add_links("halide_upsample_nearest", { public = true })

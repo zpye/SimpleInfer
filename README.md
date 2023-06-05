@@ -55,6 +55,19 @@ pip install build/python/
 python test/test_python/test_model.py
 ```
 
+## (Experimental) Halide Programming
+
+Note: Only upsample nearest layer has an implementation of Halide.
+
+1. Set environment `HALIDE_ROOT` for Halide installation path, using release packages from [https://github.com/halide/Halide/releases](https://github.com/halide/Halide/releases) is a good choice.
+
+2. Set `--halide=true` after `xmake config` and build: 
+
+```shell
+xmake config -a x64 -m release --halide=true
+xmake -w --all
+```
+
 ## Reference
 
 [KuiperInfer](https://github.com/zjhellofss/KuiperInfer) -> basic framework
@@ -74,5 +87,7 @@ python test/test_python/test_model.py
 [pybind11](https://github.com/pybind/pybind11) -> python bindings of c++
 
 [stb](https://github.com/nothings/stb) -> image loader and image writer
+
+[Halide](https://github.com/halide/Halide) -> Halide programming
 
 [tmp](https://github.com/zjhellofss/tmp) -> pnnx models
