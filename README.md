@@ -65,6 +65,7 @@ Note: Only upsample nearest layer has an implementation of Halide.
 
 ```shell
 xmake config -a x64 -m release --halide=true
+xmake build halide_layers
 xmake -w --all
 ```
 
