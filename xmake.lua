@@ -37,11 +37,6 @@ target("simple-infer")
         add_deps("halide_layers")
     end
 
-target("tools")
-    set_kind("static")
-    add_includedirs("tools/", { public = true })
-    add_files("tools/**.cpp")
-
 if has_config("build_python") then
     target("pybind11_export")
         before_build(function () 
@@ -112,7 +107,7 @@ target("test-yolo")
     add_files("test/test_yolo/test_yolo.cpp")
     add_defines("MODEL_PATH=R\"($(curdir)/3rdparty/tmp)\"")
     add_defines("IMAGE_PATH=R\"($(curdir)/imgs)\"")
-    add_deps("simple-infer", "tools")
+    add_deps("simple-infer", "simpleocv")
 
 target("test-yolo2")
     set_kind("binary")
@@ -120,7 +115,7 @@ target("test-yolo2")
     add_files("test/test_yolo/test_yolo2.cpp")
     add_defines("MODEL_PATH=R\"($(curdir)/3rdparty/tmp)\"")
     add_defines("IMAGE_PATH=R\"($(curdir)/imgs)\"")
-    add_deps("simple-infer", "tools")
+    add_deps("simple-infer")
 
 target("test-classify")
     set_kind("binary")
@@ -128,7 +123,7 @@ target("test-classify")
     add_files("test/test_classify/test_classify.cpp")
     add_defines("MODEL_PATH=R\"($(curdir)/3rdparty/tmp)\"")
     add_defines("IMAGE_PATH=R\"($(curdir)/imgs)\"")
-    add_deps("simple-infer", "tools")
+    add_deps("simple-infer")
 
 target("test-highway")
     set_kind("binary")

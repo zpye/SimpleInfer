@@ -22,3 +22,6 @@
 [submodule "3rdparty/highway"]
 	path = 3rdparty/highway
 	url = https://github.com/google/highway.git
+[submodule "3rdparty/simpleocv"]
+	path = 3rdparty/simpleocv
+	url = https://github.com/zpye/simpleocv.git

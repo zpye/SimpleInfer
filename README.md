@@ -73,7 +73,7 @@ xmake -w --all
 
 [KuiperInfer](https://github.com/zjhellofss/KuiperInfer) -> basic framework
 
-[ncnn](https://github.com/Tencent/ncnn) -> pnnx ir, simpleocv and mat-pixel operations
+[ncnn](https://github.com/Tencent/ncnn), [simpleocv](https://github.com/zpye/simpleocv) -> pnnx ir, simpleocv and mat-pixel operations
 
 [Eigen](https://gitlab.com/libeigen/eigen), [tensorflow](https://github.com/tensorflow/tensorflow) -> Eigen tensor
 

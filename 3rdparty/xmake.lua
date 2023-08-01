@@ -59,3 +59,5 @@ if has_config("build_python") then
         add_linkdirs("$(env PYTHON_ROOT)/libs/", { public = true })
         add_links("python3")
 end
+
+includes("simpleocv")
